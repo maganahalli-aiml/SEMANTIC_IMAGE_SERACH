@@ -52,3 +52,5 @@ logs/
 # Cache
 .cache/
 *.cache
+
+notebooks/
