@@ -1,0 +1,44 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# OS
+.DS_Store
+*.pem
+
+# Debug
+*.log
+.metro-health-check*
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# Build
+build/
+.gradle/
+
+# Native
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+android/
+ios/

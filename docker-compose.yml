@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: semantic-search-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - QDRANT_COLLECTION_NAME=${QDRANT_COLLECTION_NAME:-semantic_images}
+      - PYTHONPATH=/app
+    volumes:
+      - ./temp_images:/app/temp_images
+      - ./saved_results:/app/saved_results
+      - ./data:/app/data
+      - ./semantic_image_search:/app/semantic_image_search
+    networks:
+      - semantic-search-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Mobile App Frontend Service (Expo Web)
+  frontend:
+    build:
+      context: ./mobile-app
+      dockerfile: Dockerfile
+    container_name: semantic-search-frontend
+    ports:
+      - "19000:19000"  # Expo DevTools
+      - "19001:19001"  # Expo DevTools (secure)
+      - "19002:19002"  # Expo web
+      - "8081:8081"    # Metro bundler
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+    volumes:
+      - ./mobile-app:/app
+      - /app/node_modules
+    networks:
+      - semantic-search-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  semantic-search-network:
+    driver: bridge
+
+volumes:
+  temp_images:
+  saved_results:
+  data:
