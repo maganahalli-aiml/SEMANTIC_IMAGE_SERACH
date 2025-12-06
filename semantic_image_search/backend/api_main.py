@@ -272,8 +272,22 @@ async def search_by_image(
             import json
             try:
                 parsed_filter = json.loads(metadata_filter)
-            except json.JSONDecodeError:
-                raise HTTPException(status_code=400, detail="Invalid JSON in metadata_filter")
+            except json.JSONDecodeError as e:
+                # Provide helpful error message with examples
+                raise HTTPException(
+                    status_code=400, 
+                    detail={
+                        "error": "invalid_metadata_filter",
+                        "message": "metadata_filter must be a valid JSON string",
+                        "provided": metadata_filter,
+                        "examples": [
+                            '{"category": "flower"}',
+                            '{"category": "animal", "verified": true}',
+                            '{"year": 2024}'
+                        ],
+                        "note": "Make sure to properly encode the JSON in the URL"
+                    }
+                )
         
         # Perform search
         results = search_service.search_by_image(
@@ -311,6 +325,9 @@ async def search_by_image(
             saved_path=saved_path
         )
         
+    except HTTPException:
+        # Re-raise HTTPException as-is (already has proper status code and detail)
+        raise
     except SemanticImageSearchException as e:
         error_msg = str(e)
         log.error("Image search failed", query_id=query_id, error=error_msg)

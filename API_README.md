@@ -108,15 +108,33 @@ Find similar images using an uploaded image.
 - `image` (required): Image file (multipart/form-data)
 - `k` (optional): Number of results (1-100, default: 10)
 - `save_results` (optional): Save results to disk (default: false)
-- `metadata_filter` (optional): JSON string of metadata filters
+- `metadata_filter` (optional): JSON string of metadata filters (must be valid JSON)
 
-**cURL Example:**
+**cURL Examples:**
 ```bash
+# Without metadata filter
 curl -X POST "http://localhost:8000/search/image" \
   -F "image=@/path/to/your/image.jpg" \
   -F "k=5" \
   -F "save_results=true"
+
+# With metadata filter (category=flower)
+curl -X POST "http://localhost:8000/search/image" \
+  -F "image=@/path/to/your/image.jpg" \
+  -F "k=5" \
+  -F 'metadata_filter={"category":"flower"}'
 ```
+
+**⚠️ Important Note about metadata_filter:**
+The `metadata_filter` parameter must be a **valid JSON string**, not a plain string.
+
+✅ Correct:
+- `metadata_filter={"category":"flower"}`
+- `metadata_filter={"category":"animal","verified":true}`
+
+❌ Incorrect:
+- `metadata_filter=uncategorized` (not JSON)
+- `metadata_filter=flower` (not JSON)
 
 **Response:**
 ```json
