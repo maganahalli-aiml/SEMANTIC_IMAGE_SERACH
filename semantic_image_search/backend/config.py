@@ -72,7 +72,7 @@ class Config:
     safe_log("info", "DEVICE selected", value=DEVICE)
 
     # ------------------- QDRANT -------------------
-    QDRANT_URL: str = os.getenv("QDRANT_URL")
+    QDRANT_URL: str = os.getenv("QDRANT_URL") or os.getenv("CLUSTER_API_ENDPOINT")
     if QDRANT_URL:
         safe_log("info", "QDRANT_URL loaded", value=QDRANT_URL)
     else:
