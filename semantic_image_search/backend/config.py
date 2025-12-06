@@ -72,11 +72,11 @@ class Config:
     safe_log("info", "DEVICE selected", value=DEVICE)
 
     # ------------------- QDRANT -------------------
-    QDRANT_URL: str = os.getenv("QDRANT_URL") or os.getenv("CLUSTER_API_ENDPOINT")
-    if QDRANT_URL:
-        safe_log("info", "QDRANT_URL loaded", value=QDRANT_URL)
+    CLUSTER_API_ENDPOINT: str = os.getenv("CLUSTER_API_ENDPOINT")
+    if CLUSTER_API_ENDPOINT:
+        safe_log("info", "CLUSTER_API_ENDPOINT loaded", value=CLUSTER_API_ENDPOINT)
     else:
-        safe_log("warning", "QDRANT_URL missing in environment")
+        safe_log("warning", "CLUSTER_API_ENDPOINT missing in environment")
 
     QDRANT_API_KEY: str = os.getenv("QDRANT_API_KEY")
     if QDRANT_API_KEY:
