@@ -441,6 +441,60 @@ async def get_result_image(result_id: str, image_name: str):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+@app.get("/images/{image_id}")
+async def get_image_by_id(image_id: str):
+    """
+    Serve an image file by its vector store ID
+    
+    Args:
+        image_id: UUID of the image in the vector store
+        
+    Returns:
+        Image file
+    """
+    try:
+        # Get the image metadata from Qdrant using the client
+        results = search_service.client.retrieve(
+            collection_name=search_service.collection,
+            ids=[image_id]
+        )
+        
+        if not results or len(results) == 0:
+            raise HTTPException(status_code=404, detail=f"Image not found: {image_id}")
+        
+        # Extract the file path from metadata
+        stored_path = results[0].payload.get('path')
+        
+        # Convert host path to container path
+        # The stored path is like: /Users/vmaganahalli/Documents/LLMOPS/SEMANTIC-IMAGE-SEARCH/images/...
+        # We need to convert it to: /app/images/...
+        image_path = Path(stored_path)
+        
+        # Find the 'images' directory in the path and reconstruct from there
+        parts = image_path.parts
+        if 'images' in parts:
+            images_index = parts.index('images')
+            relative_path = Path(*parts[images_index:])
+            container_path = Path('/app') / relative_path
+        else:
+            # Fallback: try the path as-is
+            container_path = image_path
+        
+        if not container_path.exists():
+            raise HTTPException(status_code=404, detail=f"Image file not found at: {container_path}")
+        
+        return FileResponse(
+            path=str(container_path),
+            media_type=f"image/{container_path.suffix[1:]}",
+            filename=container_path.name
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error("Failed to retrieve image", error=str(e), image_id=image_id)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
 @app.get("/metadata/categories")
 async def get_available_categories():
     """

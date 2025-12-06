@@ -20,6 +20,7 @@ services:
       - ./saved_results:/app/saved_results
       - ./data:/app/data
       - ./semantic_image_search:/app/semantic_image_search
+      - ./images:/app/images
     networks:
       - semantic-search-network
     restart: unless-stopped
@@ -30,12 +31,27 @@ services:
       retries: 3
       start_period: 40s
 
-  # Mobile App Frontend Service (Expo Web)
-  frontend:
+  # Web Frontend Service
+  web-frontend:
+    build:
+      context: ./web-frontend
+      dockerfile: Dockerfile
+    container_name: semantic-search-web-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - semantic-search-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Mobile App Frontend Service (Expo - Optional)
+  mobile-frontend:
     build:
       context: ./mobile-app
       dockerfile: Dockerfile
-    container_name: semantic-search-frontend
+    container_name: semantic-search-mobile-frontend
     ports:
       - "19000:19000"  # Expo DevTools
       - "19001:19001"  # Expo DevTools (secure)
@@ -53,6 +69,8 @@ services:
       backend:
         condition: service_healthy
     restart: unless-stopped
+    profiles:
+      - mobile  # Optional service, start with: docker-compose --profile mobile up
 
 networks:
   semantic-search-network:

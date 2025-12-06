@@ -19,5 +19,5 @@ COPY . .
 # Expose port for Expo dev server and web
 EXPOSE 19000 19001 19002 8081
 
-# Start Expo development server
-CMD ["npm", "start"]
+# Start Expo development server (use Expo Go app on mobile to access)
+CMD ["npx", "expo", "start", "--host", "lan"]

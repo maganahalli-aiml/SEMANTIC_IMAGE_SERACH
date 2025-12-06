@@ -72,7 +72,8 @@ class Config:
     safe_log("info", "DEVICE selected", value=DEVICE)
 
     # ------------------- QDRANT -------------------
-    CLUSTER_API_ENDPOINT: str = os.getenv("CLUSTER_API_ENDPOINT")
+    # Support both QDRANT_URL (docker-compose) and CLUSTER_API_ENDPOINT (legacy)
+    CLUSTER_API_ENDPOINT: str = os.getenv("QDRANT_URL") or os.getenv("CLUSTER_API_ENDPOINT")
     if CLUSTER_API_ENDPOINT:
         safe_log("info", "CLUSTER_API_ENDPOINT loaded", value=CLUSTER_API_ENDPOINT)
     else:
